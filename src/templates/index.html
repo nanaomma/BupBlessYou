@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BupBlessYou - Digital Courtroom</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Google Fonts for game-like feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <audio id="bgm-player" loop>
+        <source src="/static/sound/background_music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="app-container">
+        
+        <!-- [Main Stage] Visual Novel Area -->
+        <main id="main-stage">
+            
+            <!-- 1. Background Layer -->
+            <div id="background-layer" class="full-screen-bg"></div>
+
+            <!-- 2. Character Layer -->
+            <div id="character-layer">
+                <!-- Character container aligns items based on role (left/center/right) -->
+                <div id="character-container" class="pos-center">
+                    <img id="character-img" src="" alt="Character" style="display: none;">
+                    <div id="character-placeholder" class="character-placeholder"></div>
+                </div>
+            </div>
+
+            <!-- 3. Dialogue Layer (Bottom Overlay) -->
+            <div id="dialogue-section">
+                <div id="speaker-name-tag">System</div>
+                
+                <div id="dialogue-box">
+                    <div id="dialogue-content"></div>
+                </div>
+
+                <!-- Reference & Footer Info -->
+                <div id="dialogue-info">
+                    <span id="reference-text"></span>
+                </div>
+
+                <!-- User Input Area (Internal to Dialogue) -->
+                <div id="user-input-container">
+                    <input type="text" id="user-query-input" placeholder="이의를 제기하거나 질문을 입력하세요..." autocomplete="off">
+                    <button id="btn-send-query">전송</button>
+                </div>
+            </div>
+
+            <!-- Overlays (Hidden by default) -->
+            <div id="overlay-case-info" class="overlay hidden">
+                <div class="overlay-content">
+                    <h2>📂 사건 개요</h2>
+                    <div id="case-info-text" class="scrollable-content"></div>
+                    <button class="close-btn">닫기</button>
+                </div>
+            </div>
+
+            <div id="overlay-history" class="overlay hidden">
+                 <div class="overlay-content">
+                    <h2>📜 대화 기록</h2>
+                    <div id="history-list" class="scrollable-content"></div>
+                    <button class="close-btn">닫기</button>
+                </div>
+            </div>
+
+            <!-- Evaluation Overlay -->
+            <div id="overlay-evaluation" class="overlay hidden">
+                <div class="overlay-content">
+                    <h2> 현재 라운드 공방 평가 (Judge Review)</h2>
+                    <div id="evaluation-results" class="scrollable-content"></div>
+                    <button class="close-btn">닫기</button>
+                </div>
+            </div>
+
+            <!-- Evaluation Overlay -->
+            <div id="overlay-evaluationlog" class="overlay hidden">
+                <div class="overlay-content">
+                    <h2> 개별 발언 평가 기록 </h2>
+                    <div id="evaluation-history" class="scrollable-content"></div>
+                    <button class="close-btn">닫기</button>
+                </div>
+            </div>
+
+            <!-- Judgment Form Overlay -->
+            <div id="overlay-judgment-form" class="overlay hidden">
+                <div class="overlay-content judgment-form-content">
+                    <h2>⚖️ 최종 판결 선고</h2>
+
+                    <form id="judgment-form">
+                        <!-- 징역 입력 -->
+                        <div class="form-group">
+                            <label for="prison-years">징역</label>
+                            <div class="sentence-input-group">
+                                <input type="number" id="prison-years" min="0" max="50" placeholder="0" value="0">
+                                <span>년</span>
+                                <input type="number" id="prison-months" min="0" max="11" placeholder="0" value="0">
+                                <span>월</span>
+                            </div>
+                        </div>
+
+                        <!-- 집행유예 입력 -->
+                        <div class="form-group">
+                            <label for="suspension-years">집행유예</label>
+                            <div class="sentence-input-group">
+                                <input type="number" id="suspension-years" min="0" max="10" placeholder="0" value="0">
+                                <span>년</span>
+                                <input type="number" id="suspension-months" min="0" max="11" placeholder="0" value="0">
+                                <span>월</span>
+                            </div>
+                            <small style="color: #aaa; display: block; margin-top: 5px;">
+                                * 집행유예가 없으면 0년 0월로 유지하세요
+                            </small>
+                        </div>
+
+                        <!-- 벌금 입력 (주석처리 - 추후 사용) -->
+                        <!-- <div class="form-group">
+                            <label for="fine-amount">벌금</label>
+                            <div class="sentence-input-group">
+                                <input type="number" id="fine-amount" min="0" step="1000000" placeholder="0">
+                                <span>원</span>
+                            </div>
+                        </div> -->
+
+                        <!-- 양형 이유 입력 -->
+                        <div class="form-group">
+                            <label for="judgment-reasoning">양형 이유</label>
+                            <textarea id="judgment-reasoning" rows="6" placeholder="판결 이유를 입력하세요...&#10;예: 초범이며 피해자와 합의가 이루어진 점, 반성하는 태도를 보이는 점 등을 참작하여..."></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="action-btn primary-btn">선고하기</button>
+                            <button type="button" class="close-btn secondary-btn">취소</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Judgment Analysis Overlay -->
+            <div id="overlay-analysis-result" class="overlay hidden">
+                <div class="overlay-content analysis-content" style="max-width: 900px;">
+                    <h2>📊 판결 분석 결과</h2>
+
+                    <!-- Comparison Section -->
+                    <div class="analysis-comparison">
+                        <div class="comparison-col">
+                            <h3>👤 유저 판결</h3>
+                            <div class="judgment-box user-judgment">
+                                <div class="judgment-verdict">
+                                    <strong>형벌:</strong>
+                                    <p id="user-verdict-text">-</p>
+                                </div>
+                                <div class="judgment-reasoning">
+                                    <strong>양형 이유:</strong>
+                                    <p id="user-reasoning-text">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="comparison-col">
+                            <h3>⚖️ 실제 판결</h3>
+                            <div class="judgment-box actual-judgment">
+                                <div class="judgment-verdict">
+                                    <strong>형벌:</strong>
+                                    <p id="actual-verdict-text">-</p>
+                                </div>
+                                <div class="judgment-reasoning">
+                                    <strong>양형 이유:</strong>
+                                    <p id="actual-reasoning-text">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Details -->
+                    <div class="analysis-details">
+                        <div class="analysis-section">
+                            <h4>📝 요약</h4>
+                            <p id="analysis-summary">-</p>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h4 style="color: #51cf66;">✅ 잘한 점</h4>
+                            <p id="analysis-strength">-</p>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h4 style="color: #ff6b6b;">⚠️ 아쉬운 점</h4>
+                            <p id="analysis-weakness">-</p>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h4 style="color: #ffd43b;">🔍 간과된 요소</h4>
+                            <ul id="analysis-overlooked"></ul>
+                        </div>
+
+                        <div class="analysis-section">
+                            <h4 style="color: #74c0fc;">💡 학습 포인트</h4>
+                            <ul id="analysis-learning"></ul>
+                        </div>
+                    </div>
+
+                    <button class="close-btn">닫기</button>
+                </div>
+            </div>
+
+            <!-- Reference Materials Overlay -->
+            <div id="overlay-reference" class="overlay hidden">
+                <div class="overlay-content reference-content" style="max-width: 800px;">
+                    <h2>📚 참고 자료</h2>
+
+                    <!-- Legal Context Section -->
+                    <div class="reference-section">
+                        <h3>💡 법률 자문</h3>
+                        <div id="reference-legal-content" class="reference-detail">
+                            대기 중...
+                        </div>
+                    </div>
+
+                    <!-- Sentencing Guidelines Section -->
+                    <div class="reference-section">
+                        <h3>⚖️ 양형 기준</h3>
+                        <div id="reference-sentencing-content" class="reference-detail">
+                            대기 중...
+                        </div>
+                    </div>
+
+                    <button class="close-btn">닫기</button>
+                </div>
+            </div>
+
+            <!-- Start Screen Overlay -->
+            <div id="start-screen" class="overlay">
+                 <div class="start-content">
+                     <h1 class="game-title">BupBlessYou</h1>
+                     <p class="game-subtitle">AI 법정 시뮬레이션</p>
+                     <button id="btn-start-game" class="main-action-btn">재판 개정 (Start)</button>
+                 </div>
+            </div>
+            
+            <!-- Loading Indicators -->
+            <div id="global-loader" class="hidden">
+                <div class="spinner large-spinner"></div>
+                <p>시스템 초기화 중...</p>
+            </div>
+            
+            <div id="interaction-loader" class="hidden">
+                <div class="spinner mini-spinner"></div>
+            </div>
+        </main>
+
+        <!-- [Right Panel] Control Area -->
+        <aside id="control-panel">
+            <div class="panel-header">
+                <h3>Controls</h3>
+                <button id="btn-bgm-toggle" class="icon-btn" title="BGM On/Off">🎵</button>
+            </div>
+            
+            <div class="panel-section">
+                <button id="btn-next" class="action-btn primary-btn">▶ 진행 (Next)</button>
+                <div id="action-buttons-area">
+                    <!-- Dynamic Choice Buttons will appear here -->
+                </div>
+            </div>
+
+            <div class="panel-section info-menu">
+                <button id="btn-case-info" class="menu-btn">📂 사건 개요</button>
+                <button id="btn-history" class="menu-btn">📜 대화 기록</button>
+                <button id="btn-eval-history" class="menu-btn">📝 배석 판사의 평가 기록</button>
+                <button id="btn-reference" class="menu-btn">📚 참고 자료</button>
+            </div>
+
+            <div class="panel-footer">
+                <button id="btn-final-judgment" class="action-btn primary-btn" style="background-color: #8e44ad; box-shadow: 0 4px 0 #6c3483; margin-bottom: 20px;">⚖️ 최종 판결 선고</button>
+                <button id="btn-stop" class="danger-btn">재판 중단</button>
+            </div>
+        </aside>
+
+    </div>
+
+    <script src="/static/js/game.js"></script>
+</body>
+</html>

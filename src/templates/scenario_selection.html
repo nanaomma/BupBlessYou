@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시나리오 선택 - BupBlessYou</title>
+    <link rel="stylesheet" href="/static/css/scenario_selection.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="scenario-container">
+        <div class="header">
+            <h1 class="title">BupBlessYou</h1>
+            <p class="subtitle">시나리오를 선택하세요</p>
+        </div>
+
+        <div class="scenarios">
+            <div class="scenario-card" data-scenario="강제추행">
+                <div class="scenario-icon">🔞</div>
+                <h2 class="scenario-title">강제추행</h2>
+                <p class="scenario-description">
+                    강제추행 사건에 대한 법정 시뮬레이션<br>
+                    피해자 합의와 누범여부를 바탕으로 판결을 내리세요
+                </p>
+                <button class="select-btn" data-scenario="강제추행">선택하기</button>
+            </div>
+
+            <div class="scenario-card" data-scenario="사기">
+                <div class="scenario-icon">🎭</div>
+                <h2 class="scenario-title">사기</h2>
+                <p class="scenario-description">
+                    사기 사건에 대한 법정 시뮬레이션<br>
+                    피해 규모와 회복 여부를 분석하여 판결하세요
+                </p>
+                <button class="select-btn" data-scenario="사기">선택하기</button>
+            </div>
+        </div>
+
+        <div id="loading-overlay" class="hidden">
+            <div class="spinner"></div>
+            <p class="loading-text">사건을 불러오는 중...</p>
+        </div>
+    </div>
+
+    <script src="/static/js/scenario_selection.js"></script>
+</body>
+</html>

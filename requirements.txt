@@ -1,0 +1,51 @@
+# Core Framework
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+
+# Frontend
+streamlit
+
+# LLM & Agent Framework - LangChain Ecosystem
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain-upstage
+langchain-huggingface
+langgraph
+langgraph-checkpoint-postgres
+langsmith  # LLM Tracing & Monitoring
+
+# LLM Providers
+openai
+upstage
+
+# RAG System
+pinecone
+sentence-transformers
+tiktoken
+
+# Database
+psycopg[binary,pool]
+psycopg2-binary
+sqlalchemy
+alembic
+
+# Utilities
+httpx
+pydantic-settings
+jinja2
+python-multipart
+aiofiles
+
+# Observability & Evaluation (Optional)
+# Phoenix Cloud (Arize) - Official packages
+arize-otel
+opentelemetry-sdk
+opentelemetry-exporter-otlp
+openinference-instrumentation-langchain>=0.1.0
+arize-phoenix>=4.0.0  # For local Phoenix server (optional)
+ragas>=0.1.0
+datasets  # Required by RAGAS
